@@ -5,6 +5,7 @@ export default function GroupForm({ onCreated }) {
   const [name, setName] = useState('');
   const [memberEmail, setMemberEmail] = useState('');
   const [group, setGroup] = useState(null);
+  const [memberError, setMemberError] = useState('');
 
   const createGroup = async (e) => {
     e.preventDefault();
@@ -16,8 +17,13 @@ export default function GroupForm({ onCreated }) {
   const addMember = async (e) => {
     e.preventDefault();
     if (!group) return;
-    await api.post(`/groups/${group.id}/members`, { email: memberEmail });
-    setMemberEmail('');
+    setMemberError('');
+    try {
+      await api.post(`/groups/${group.id}/members`, { email: memberEmail });
+      setMemberEmail('');
+    } catch (err) {
+      setMemberError(err.response?.data?.error || 'Unable to add member');
+    }
   };
 
   return (
@@ -43,6 +49,7 @@ export default function GroupForm({ onCreated }) {
           <button className="bg-gray-700 text-white px-3 py-1 rounded">Add Member</button>
         </form>
       )}
+      {memberError && <p className="text-sm text-red-600">{memberError}</p>}
     </div>
   );
 }

@@ -62,7 +62,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get members of a group
+
 router.get('/:groupId/members', async (req, res) => {
   const { groupId } = req.params;
   try {
