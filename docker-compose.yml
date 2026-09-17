@@ -1,0 +1,42 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:15
+    container_name: joineazy_db
+    restart: always
+    environment:
+      POSTGRES_USER: joineazy
+      POSTGRES_PASSWORD: joineazy_pass
+      POSTGRES_DB: joineazy_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/src/models/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  backend:
+    build: ./backend
+    container_name: joineazy_backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: postgres://joineazy:joineazy_pass@postgres:5432/joineazy_db
+      JWT_SECRET: super_secret_change_me
+      PORT: 5000
+    depends_on:
+      - postgres
+
+  frontend:
+    build: ./frontend
+    container_name: joineazy_frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:5000/api
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
